@@ -11,7 +11,7 @@ class AccountTest < ActiveSupport::TestCase
     Identity.destroy_all_disabled
   end
 
-  test "create a new account" do
+  test "create a new account when invited" do
     user = Account.create(FactoryGirl.attributes_for(:user, :invite_code => @testcode.invite_code))
     assert user.valid?, "unexpected errors: #{user.errors.inspect}"
     assert user.persisted?
@@ -19,6 +19,15 @@ class AccountTest < ActiveSupport::TestCase
     assert_equal user.email_address, id.address
     assert_equal user.email_address, id.destination
     user.account.destroy
+  end
+
+  test "create a new account" do
+    with_config invite_required: false do
+      user = Account.create(FactoryGirl.attributes_for(:user))
+      assert user.valid?, "unexpected errors: #{user.errors.inspect}"
+      assert user.persisted?
+      user.account.destroy
+    end
   end
 
   test "create and remove a user account" do
