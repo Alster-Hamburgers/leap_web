@@ -19,14 +19,15 @@ class Account
     identity = nil
     user = nil
     user = User.new(attrs)
-    user.save
 
-    if !user.tmp? && user.persisted?
-      identity = user.identity
-      identity.user_id = user.id
-      identity.save
-      identity.errors.each do |attr, msg|
-        user.errors.add(attr, msg)
+    if user.save
+      if !user.tmp?
+        identity = user.identity
+        identity.user_id = user.id
+        identity.save
+        identity.errors.each do |attr, msg|
+          user.errors.add(attr, msg)
+        end
       end
 
       if APP_CONFIG[:invite_required]
